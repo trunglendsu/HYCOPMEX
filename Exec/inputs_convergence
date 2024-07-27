@@ -1,0 +1,55 @@
+##########################
+# TEMPORAL CONVERGENCE TESTING
+
+fixed_dt = 1.e-15
+nsteps = 1
+plot_int = 1
+n_cell = 32
+max_grid_size = 16
+
+#fixed_dt = 5.e-6
+#nsteps = 2
+#plot_int = 2
+#n_cell = 128
+#max_grid_size = 64
+
+#fixed_dt = 2.5e-6
+#nsteps = 4
+#plot_int = 4
+#n_cell = 128
+#max_grid_size = 64
+##########################
+
+##########################
+# SPATIAL CONVERGENCE TESTING
+
+#fixed_dt = 1.e-5
+#nsteps = 10
+#plot_int = 10
+#n_cell = 64
+#max_grid_size = 32
+
+#fixed_dt = 1.e-5
+#nsteps = 10
+#plot_int = 10
+#n_cell = 128
+#max_grid_size = 64
+
+#fixed_dt = 1.e-5
+#nsteps = 10
+#plot_int = 10
+#n_cell = 256
+#max_grid_size = 128
+##########################
+
+IterNum = 100
+
+ren = 1
+vis = 1
+
+# phy_bc params declare the type of wall
+# 0 - periodic
+# -1 - no-slip
+# 1 - slip
+phy_bc_lo = 0 0
+phy_bc_hi = 0 0
