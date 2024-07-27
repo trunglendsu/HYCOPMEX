@@ -436,8 +436,8 @@ void main_main ()
                 } // RUNGE-KUTTA | END
                 normError = Error_Computation(velCont, velStar, velStarDiff, geom);
 
-		amrex::Print() << " Computing the RHS inside the momentum solver \n";
-                poisson_righthand_side_calc(poisson_rhs, velStar, geom, dt);
+		//amrex::Print() << " Computing the RHS inside the momentum solver \n";
+                //poisson_righthand_side_calc(poisson_rhs, velStar, geom, dt);
             }
             //amrex::Print() << "SOLVING| Momentum | performing Explicit Time Marching => latest error norm = " << normError << "\n";
             // Re-assign guess for the next iteration
@@ -480,9 +480,10 @@ void main_main ()
         // POISSON |1| Calculating the RSH
         poisson_righthand_side_calc(poisson_rhs, velCont, geom, dt);
         // POISSON |2| Init Phi at the begining of the Poisson solver
-	//       poisson_advance(poisson_sol, poisson_rhs, geom, ba, dm, bc);
 
-	poisson_advance_GMRES(poisson_sol, poisson_rhs, geom, ba, dm, bc);
+	poisson_advance(poisson_sol, poisson_rhs, geom, ba, dm, bc);
+
+	//poisson_advance_GMRES(poisson_sol, poisson_rhs, geom, ba, dm, bc);
 
 
 

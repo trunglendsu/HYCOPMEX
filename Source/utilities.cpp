@@ -14,32 +14,7 @@ void cont2cart (MultiFab& velCart,
                 int const& n_cell)
 {
     Box dom(geom.Domain());
-    //average_face_to_cellcenter(velCart, amrex::GetArrOfConstPtrs(velCont), geom);
-#ifdef AMREX_USE_OMP
-#pragma omp parallel if (Gpu::notInLaunchRegion())
-#endif
-    for ( MFIter mfi(velCart); mfi.isValid(); ++mfi )
-    {
-        const Box& vbx = mfi.validbox();
-        auto const& vel_cart  = velCart.array(mfi);
-
-        auto const& vel_cont_x = velCont[0].array(mfi);
-        auto const& vel_cont_y = velCont[1].array(mfi);
-#if (AMREX_SPACEDIM > 2)
-        auto const& vel_cont_z = velCont[2].array(mfi);
-#endif
-
-        // Average to interior cell-centered velocity
-        amrex::ParallelFor(vbx,
-                           [=] AMREX_GPU_DEVICE (int i, int j, int k) {
-            vel_cart(i, j, k, 0) = amrex::Real(0.5)*( vel_cont_x(i, j, k) + vel_cont_x(i+1, j, k) );
-            vel_cart(i, j, k, 1) = amrex::Real(0.5)*( vel_cont_y(i, j, k) + vel_cont_y(i, j+1, k) );
-#if (AMREX_SPACEDIM > 2)
-            vel_cart(i, j, k, 2) = amrex::Real(0.5)*( vel_cont_z(i, j, k) + vel_cont_z(i, j, k+1) );
-#endif
-        });
-    }
-
+    
     // Periodic BCs
     velCart.FillBoundary(geom.periodicity());
     // Non-periodic BCs
@@ -48,7 +23,8 @@ void cont2cart (MultiFab& velCart,
     // -- outlet: 2
     // -- Direclet: 10, 11
     if ( phy_bc_lo[0] == 10 || phy_bc_lo[0] == 10 || phy_bc_hi[0] == 10 || phy_bc_hi[0] == 10 ) {
-        //Print() << "INFO| Applying Direclet conditions on the volume centers on ghost node\n";
+        Print() << "INFO| Applying Direclet conditions on the volume centers on ghost node\n";
+	
 #ifdef AMREX_USE_OMP
 #pragma omp parallel if (Gpu::notInLaunchRegion())
 #endif
@@ -106,7 +82,7 @@ void cont2cart (MultiFab& velCart,
                 });
             }
         }
-    }
+    }// End of boundary Node == 10
     /**
      * @brief Direclet boundary for steady flow with Taylor-Green Vortex boundary
      * 
@@ -432,7 +408,37 @@ void cont2cart (MultiFab& velCart,
             }
         });
 #endif
+    }//End of the loop MFI
+
+
+
+    //------------- Cont to Cart -----------
+    //average_face_to_cellcenter(velCart, amrex::GetArrOfConstPtrs(velCont), geom);
+#ifdef AMREX_USE_OMP
+#pragma omp parallel if (Gpu::notInLaunchRegion())
+#endif
+    for ( MFIter mfi(velCart); mfi.isValid(); ++mfi )
+    {
+        const Box& vbx = mfi.validbox();
+        auto const& vel_cart  = velCart.array(mfi);
+
+        auto const& vel_cont_x = velCont[0].array(mfi);
+        auto const& vel_cont_y = velCont[1].array(mfi);
+#if (AMREX_SPACEDIM > 2)
+        auto const& vel_cont_z = velCont[2].array(mfi);
+#endif
+
+        // Average to interior cell-centered velocity
+        amrex::ParallelFor(vbx,
+                           [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+            vel_cart(i, j, k, 0) = amrex::Real(0.5)*( vel_cont_x(i, j, k) + vel_cont_x(i+1, j, k) );
+            vel_cart(i, j, k, 1) = amrex::Real(0.5)*( vel_cont_y(i, j, k) + vel_cont_y(i, j+1, k) );
+#if (AMREX_SPACEDIM > 2)
+            vel_cart(i, j, k, 2) = amrex::Real(0.5)*( vel_cont_z(i, j, k) + vel_cont_z(i, j, k+1) );
+#endif
+        });
     }
+
 }
 
 void shift_face_to_center (MultiFab& cell_centre,

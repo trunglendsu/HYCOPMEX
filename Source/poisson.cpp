@@ -431,7 +431,7 @@ void poisson_advance_GMRES( MultiFab& poisson_sol,
     GMRESMLMGT<MultiFab> my_solver(mlmg);
     my_solver.setVerbose(10);
     my_solver.setMaxIters(20);
-    my_solver.usePrecond(false);
+    // my_solver.usePrecond(false);
 
     my_solver.solve(poisson_sol, poisson_rhs, tol_rel, tol_abs);
 
